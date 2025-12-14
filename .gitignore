@@ -1,0 +1,49 @@
+# =========================
+# Python bytecode / caches
+# =========================
+__pycache__/
+*.py[cod]
+
+# =========================
+# Virtual environments
+# =========================
+.venv/
+venv/
+.env/
+ENV/
+
+# =========================
+# PyTorch Lightning outputs
+# (CSVLogger writes here by default)
+# =========================
+lightning_logs/
+
+# Model checkpoints / weights
+*.ckpt
+*.pt
+*.pth
+
+# =========================
+# Geospatial raster outputs & sidecars
+# (pipeline creates GeoTIFFs and VRT mosaics; GDAL often creates aux files)
+# =========================
+*.tif
+*.tiff
+*.vrt
+*.aux.xml
+*.ovr
+
+# =========================
+# Common temporary / log files
+# =========================
+*.log
+*.tmp
+*.bak
+
+# =========================
+# OS / editor files
+# =========================
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

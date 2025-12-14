@@ -55,7 +55,9 @@ LightningDitchNet/
 └── README.md
 ```
 
-## Research background and credits
+---
+
+## Research background
 This work is inspired by and based on the methodology presented in the study:
 
 > **Lidberg, W. et al. (2023).**  
@@ -63,22 +65,55 @@ This work is inspired by and based on the methodology presented in the study:
 > Journal of Irrigation and Drainage Engineering, 149(3).  
 > https://doi.org/10.1061/JIDEDH.IRENG-9796
 
-While inspired by the above study, this repository represents an independent implementation and practical extension. 
+This repository provides an independent and further developed implementation of the original approach. 
+
 Key differences and adaptations include:
 
 - Use of a PyTorch Lightning–based U-Net implementation instead of the original research framework.
 - Extension of the input features from the single HPMF layer used in the original study to a two-channel input
-combining High-Pass Median Filter (HPMF) and Impoundment Size Index (ISI) layers
+combining High-Pass Median Filter (HPMF) and Impoundment Size Index (ISI) layers.
 - Default use of an EfficientNet-B4 encoder in place of the Xception encoder used in the original study, 
 with support for alternative encoder choices.
 - Support for model ensembling during inference.
 
+---
+
+## Example use case
+
+As an example use case, the pipeline was applied to train a ditch detection model using openly available reference data.
+
+### Data
+
+Training was performed using the following openly available dataset:
+
+> Ågren, A. M., Paul, S. S., & Lidberg, W. (2022).  
+> *Mapped drainage ditches in forested landscapes.*  
+> Mendeley Data, V1.  
+> https://doi.org/10.17632/zxkg43jsx8.1
+
+### Results
+
+The trained model achieved the following performance on the validation set:
+
+- **Recall:** 87.28%
+- **Precision:** 82.55%
+- **Matthews Correlation Coefficient (MCC):** 0.846
+
+These results illustrate the performance obtained using this pipeline and are dependent on the specific training 
+configuration and dataset.
+
+---
+
 ## Author
 All code and documentation in this repository were developed by Ville Kauppinen 
-as part of the Aalto University GIS-E6010 – Project Course.
+as part of the Aalto University course GIS-E6010 – Project Course.
 
 Email: ville.1.kauppinen@aalto.fi
+
+---
 
 ## License
 This project is licensed under the MIT License.  
 See the [LICENSE](LICENSE) file for more details.
+
+---
