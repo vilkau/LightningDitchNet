@@ -52,6 +52,7 @@ LightningDitchNet/
 │   └── train.py                        # Model training script
 │
 ├── .gitignore
+├── LICENCE.md
 └── README.md
 ```
 
