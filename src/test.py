@@ -1,5 +1,4 @@
 import argparse
-import yaml
 
 import lightning as L
 import torch
@@ -25,46 +24,49 @@ class Test:
         # Initialize the segmentation model
         self.model = self._init_model()
 
-        self.X_test, self.y_test = self._construct_test_set(config.feature_dir, config.label_dir)
+        # Collect test feature and label file paths
+        self.X_test, self.y_test = self._construct_test_set()
 
-        self.test_transform = A.Compose([ToTensorV2()],
-                                        additional_targets={"label": "mask"})
+        # Define test-time transforms (only tensor conversion, no augmentation)
+        self.test_transform = A.Compose([ToTensorV2()], additional_targets={"label": "mask"})
 
-        self.test_dataloader = self._construct_dataloader(config.batch_size, config.num_workers)
+        # Build DataLoader for the test dataset
+        self.test_dataloader = self._construct_dataloader()
 
+        # Initialize logger
         self.logger = CSVLogger(save_dir=Path.cwd() / "lightning_logs", name="test_logs")
 
     def _init_model(self):
+        # Load model hyperparameters used during training
         encoder_name, in_channels, pos_weight = fetch_hparams_from_yaml(mode="test",
                                                                         yaml_path=self.config.hparams_path)
-
         model_config = ModelConfig(encoder_name=encoder_name, in_channels=in_channels, pos_weight=pos_weight)
-
         model = LightningDitchNet(model_config)
+
+        # Load model checkpoint and restore model weights
         checkpoint = torch.load(self.config.model_checkpoint_path, map_location="cpu", weights_only=True)
         model.load_state_dict(checkpoint["state_dict"])
 
         return model
 
-    @staticmethod
-    def _construct_test_set(feature_dir, label_dir):
+    def _construct_test_set(self):
         # Resolve and sort all feature and label paths
-        X = sorted(Path(feature_dir).resolve().iterdir())
-        y = sorted(Path(label_dir).resolve().iterdir())
+        X = sorted(Path(self.config.feature_dir).resolve().iterdir())
+        y = sorted(Path(self.config.label_dir).resolve().iterdir())
 
         if len(X) != len(y):
             raise ValueError("Feature and label directories must contain the same number of files.")
 
         return X, y
 
-    def _construct_dataloader(self, batch_size, num_workers):
+    def _construct_dataloader(self):
         # Dataset and DataLoader construction
         test_dataset = DitchDataset(X=self.X_test, y=self.y_test, transform=self.test_transform)
 
         test_dataloader = DataLoader(test_dataset,
-                                     batch_size=batch_size,
-                                     num_workers=num_workers,
-                                     persistent_workers=(num_workers > 0),
+                                     batch_size=self.config.batch_size,
+                                     num_workers=self.config.num_workers,
+                                     persistent_workers=(self.config.num_workers > 0),
                                      pin_memory=True)
 
         return test_dataloader

@@ -41,7 +41,7 @@ class Inference:
 
         # Initialize selected model(s)
         self.models = []
-        self._init_models(config.model_dir)
+        self._init_models()
 
         # Initialize output and temp directories
         self.output_probability_dir, self.output_binary_dir, self.output_depth_dir = None, None, None
@@ -59,9 +59,9 @@ class Inference:
 
         return self.config.device
 
-    def _init_models(self, model_dir):
+    def _init_models(self):
         # Resolve the path and ensure at least one .ckpt file exists
-        model_dir = Path(model_dir).resolve()
+        model_dir = Path(self.config.model_dir).resolve()
         if not any(model_dir.glob("*.ckpt")):
             raise ValueError(f"No model checkpoints (*.ckpt) found in directory: {model_dir}")
 

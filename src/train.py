@@ -31,24 +31,22 @@ class Train:
         self.model = LightningDitchNet(config.model_config)
 
         # Split dataset into training and validation sets
-        self.X_train, self.X_val, self.y_train, self.y_val = self._construct_train_val_sets(config.feature_dir,
-                                                                                            config.label_dir)
+        self.X_train, self.X_val, self.y_train, self.y_val = self._construct_train_val_sets()
 
         # Define augmentation and preprocessing pipelines
         self.train_transform, self.val_transform = self._construct_transforms()
 
         # Create PyTorch DataLoaders for training and validation
-        self.train_dataloader, self.validation_dataloader = self._construct_dataloaders(config.batch_size,
-                                                                                        config.num_workers)
+        self.train_dataloader, self.validation_dataloader = self._construct_dataloaders()
 
         # Initialize logger and callbacks for model tracking and checkpointing
         self.logger = CSVLogger(save_dir=Path.cwd() / "lightning_logs", name="train_logs")
         self.callbacks = self._set_callbacks()
 
-    def _construct_train_val_sets(self, feature_dir, label_dir):
+    def _construct_train_val_sets(self):
         # Resolve and sort all feature and label paths
-        X = sorted(Path(feature_dir).resolve().iterdir())
-        y = sorted(Path(label_dir).resolve().iterdir())
+        X = sorted(Path(self.config.feature_dir).resolve().iterdir())
+        y = sorted(Path(self.config.label_dir).resolve().iterdir())
 
         if len(X) != len(y):
             raise ValueError("Feature and label directories must contain the same number of files.")
@@ -70,22 +68,22 @@ class Train:
 
         return train_transform, val_transform
 
-    def _construct_dataloaders(self, batch_size, num_workers):
+    def _construct_dataloaders(self):
         # Dataset and DataLoader construction
         training_dataset = DitchDataset(X=self.X_train, y=self.y_train, transform=self.train_transform)
         validation_dataset = DitchDataset(X=self.X_val, y=self.y_val, transform=self.val_transform)
 
         training_dataloader = DataLoader(training_dataset,
-                                         batch_size=batch_size,
-                                         num_workers=num_workers,
-                                         persistent_workers=(num_workers > 0),
+                                         batch_size=self.config.batch_size,
+                                         num_workers=self.config.num_workers,
+                                         persistent_workers=(self.config.num_workers > 0),
                                          shuffle=True,
                                          pin_memory=True)
 
         validation_dataloader = DataLoader(validation_dataset,
-                                           batch_size=batch_size,
-                                           num_workers=num_workers,
-                                           persistent_workers=(num_workers > 0),
+                                           batch_size=self.config.batch_size,
+                                           num_workers=self.config.num_workers,
+                                           persistent_workers=(self.config.num_workers > 0),
                                            pin_memory=True)
 
         return training_dataloader, validation_dataloader
